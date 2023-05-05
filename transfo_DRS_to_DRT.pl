@@ -21,10 +21,10 @@ listeRef(drs(ListeR,_), ListeR).
 listeCond(drs(_,ListeC),ListeC).
 
 %Traduction des référents et des conditions
-list_to_vars([],true).
+list_to_vars([X], exist(X)).
 list_to_vars([X|Xs], and(exist(X),E)) :- list_to_vars(Xs,E).
 
-list_to_cond([],true).
+list_to_cond([X],X).
 list_to_cond([X|Xs], and(X,E)) :- list_to_cond(Xs,E).
 
 %Je fais un and() des formules des référents et des conditions
@@ -54,7 +54,7 @@ trad_imp2(DRS2,R) :- listeRef(DRS2,Re), listeCond(DRS2,C), list_to_vars(Re,L1),t
 %Prend 2 formules et les met dans un implique
 impl(F1,F2,imp(F1,F2)).
 
-trad_cond([],true).
+trad_cond([X], Y) :- handle(X, Y).
 trad_cond([X|Xs], and(Y,R)) :- handle(X,Y), trad_cond(Xs,R).
 
 % Si la condition commence par imp et que les deux trucs sont des drs on les
