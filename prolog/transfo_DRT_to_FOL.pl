@@ -1,6 +1,4 @@
-% -*- Mode:Prolog -*-
-
-%Transformation de DRS en logique DRT
+% Transformation de DRS en logique DRT
 
 
 %Exemple 1 facile
@@ -9,10 +7,10 @@ exemple(1,drs([x,y],[man(x),enter(x),smiled(y),eq(y,x)])).
 %Exemple 2 implication
 %Si un fermier possède un âne, il le bât.
 %exist(x),exist(y),impl(and(fermier(x),and(âne(y),and(posseder(x,y),true))),
-exemple(2,drs([],[imp_drs(drs([x,y],[fermier(x),âne(y),possede(x,y)]),drs([u,v],[eq(u,_),eq(v,_),battre(u,v)]))])).
+exemple(2,drs([],[imp_drs(drs([x,y],[fermier(x),âne(y),possede(x,y)]),drs([u,v],[eq(u,x),eq(v,y),battre(u,v)]))])).
 
 %Exemple 3 négation
-exemple(3,drs([],[non(drs([x,y],[man(x),enter(x),smiled(y),eq(y,_)]))])).
+exemple(3,drs([],[non(drs([x,y],[man(x),enter(x),smiled(y),eq(y,x)]))])).
 
 % TRADUCTION DES DRS EN LOGIQUE DRT
 
@@ -64,10 +62,6 @@ trad_drs(X,R) :- exemple(X,DRS), drs_to_drt(DRS,R), format('La traduction de la 
 
 % TRADUCTION EN LOGIQUE DU PREMIER ORDRE
 
-%On construit la liste des variables exist
-list_exist(and(exist(X),exist(Y)),[X,Y]) :- !.
-list_exist(and(exist(X),Y),[X,R]) :- Y \== exist(_), list_exist(Y,R).
-
 trad_exist_fol(Exists,Cond,exist(Exists,Cond)).
 
 get_exist_vars(exist(X), [X]) :- !.
@@ -78,21 +72,24 @@ get_exist_vars(and(F1, F2), L) :-
 get_exist_vars(_, []) :- !.
 
 get_cond(and(and(exist(_),_),C),[C]).
+get_cond(and(true,X),R) :- get_cond(X,R).
+get_cond(not(X),R) :- get_cond(X,R).
 
-drt_to_fol(not(X),not(R)) :- drt_to_fol(X,R).
+drt_to_fol(not(X),not(R)) :- drt_to_fol(X,R), !.
 drt_to_fol(imp(X,Y),R) :- 
     drt_to_fol(X,R1),
     drt_to_fol(Y,R2),
-    impl(R1,R2,R).
+    impl(R1,R2,R), !.
+drt_to_fol(and(true,X),R) :- drt_to_fol(X,R), !.
 drt_to_fol(F,R) :-
     get_exist_vars(F, L1),
     get_cond(F,L2),
-    trad_exist_fol(L1,L2,R).
+    trad_exist_fol(L1,L2,R), !.
 
 
 trad_fol(X,R) :- trad_drs(X,R1), drt_to_fol(R1,R), format('La traduction en fol est : ~n').
 
-
+ 
 
 
 
