@@ -1,5 +1,4 @@
-%Transformation de DRS en logique DRT
-
+% EXEMPLES
 
 %Exemple 1 facile
 exemple(1,drs([x,y],[man(x),enter(x),smiled(y),eq(y,x)])).
@@ -11,6 +10,8 @@ exemple(2,drs([],[imp_drs(drs([x,y],[fermier(x),âne(y),possede(x,y)]),drs([u,v]
 
 %Exemple 3 négation
 exemple(3,drs([],[non(drs([x,y],[man(x),enter(x),smiled(y),eq(y,x)]))])).
+
+
 
 % TRADUCTION DES DRS EN LOGIQUE DRT
 
@@ -25,12 +26,8 @@ list_to_vars([],true).
 list_to_vars([X], exist(X)) :- !.
 list_to_vars([X|Xs], and(exist(X),E)) :- list_to_vars(Xs,E).
 
-
 %Je fais un and() des formules des référents et des conditions
 list_and(L1, L2, and(L1,L2)).
- 
-
-%IMPLICATION DE DRS
 
 %Prend 2 formules et les met dans un implique
 impl(F1,F2,imp(F1,F2)).
@@ -57,7 +54,8 @@ trad_cond([X|Xs], and(Y,R)) :- handle(X,Y), trad_cond(Xs,R).
 drs_to_drt(DRS,R) :- listeRef(DRS,Re), listeCond(DRS,C), list_to_vars(Re,L1), trad_cond(C,L2), list_and(L1,L2,R).
 
 
-trad_drs(X,R) :- exemple(X,DRS), drs_to_drt(DRS,R), format('La traduction de la drs est : ~n ~p. ~n',[R]).
+trad_drs(X,R) :- exemple(X,DRS), drs_to_drt(DRS,R), format('~p ~n~nLa traduction de la drs est : ~n ~p. ~n',[DRS,R]).
+
 
 
 % TRADUCTION EN LOGIQUE DU PREMIER ORDRE
@@ -75,7 +73,8 @@ get_cond(and(and(exist(_),_),C),[C]).
 get_cond(and(true,X),R) :- get_cond(X,R).
 get_cond(not(X),R) :- get_cond(X,R).
 
-drt_to_fol(not(X),not(R)) :- drt_to_fol(X,R), !.
+
+drt_to_fol(not(X),not(R)) :- drt_to_fol(X,R), neg(R), !.
 drt_to_fol(imp(X,Y),R) :- 
     drt_to_fol(X,R1),
     drt_to_fol(Y,R2),
@@ -86,9 +85,18 @@ drt_to_fol(F,R) :-
     get_cond(F,L2),
     trad_exist_fol(L1,L2,R), !.
 
+negation(not(exist(X,[Y])),forall(X,[R2])) :- 
+    negation(Y,R2), !.
+negation(not(forall(X,[Y])),exist(X,[R2])) :-
+    negation(Y,R2), !.
+negation(and(X,Y),or(R1,R2)) :-
+    negation(X,R1),
+    negation(Y,R2), !.
+negation(or(X,Y),and(R1,R2)) :-
+    negation(X,R1),
+    negation(Y,R2), !.
+negation(X,not(X)) :- !.
 
-trad_fol(X,R) :- trad_drs(X,R1), drt_to_fol(R1,R), format('La traduction en fol est : ~n').
+neg(X) :- negation(not(X),R), format('~nAprès application de la négation : ~n ~p. ~n',[R]).
 
-
-
-
+trad_fol(X,R) :- trad_drs(X,R1), drt_to_fol(R1,R), format('~nLa traduction en fol est : ~n ~p. ~n',[R]).
