@@ -1,18 +1,6 @@
-% -*- Mode:Prolog -*-
-
-%Transformation de DRS en logique DRT
 
 
-%Exemple 1 facile
-exemple(1,drs([x,y],[man(x),enter(x),smiled(y),eq(y,x)])).
-
-%Exemple 2 implication
-%Si un fermier possède un âne, il le bât.
-%exist(x),exist(y),impl(and(fermier(x),and(âne(y),and(posseder(x,y),true))),
-exemple(2,drs([],[imp_drs(drs([x,y],[fermier(x),âne(y),possede(x,y)]),drs([u,v],[eq(u,_),eq(v,_),battre(u,v)]))])).
-
-%Exemple 3 négation
-exemple(3,drs([],[non(drs([x,y],[man(x),enter(x),smiled(y),eq(y,_)]))])).
+% TRADUCTION DES DRS EN LOGIQUE DRT
 
 %Je crée une liste qui contient tous les référents de la DRS
 listeRef(drs(ListeR,_), ListeR).
@@ -20,27 +8,19 @@ listeRef(drs(ListeR,_), ListeR).
 %Je crée une liste qui contient toutes les conditions
 listeCond(drs(_,ListeC),ListeC).
 
-%Traduction des référents et des conditions
+%Traduction des référents
 list_to_vars([],true).
 list_to_vars([X], exist(X)) :- !.
 list_to_vars([X|Xs], and(exist(X),E)) :- list_to_vars(Xs,E).
 
-list_to_cond([],true).
-list_to_cond([X],X) :- !.
-list_to_cond([X|Xs], and(X,E)) :- list_to_cond(Xs,E).
-
 %Je fais un and() des formules des référents et des conditions
 list_and(L1, L2, and(L1,L2)).
- 
-
-%IMPLICATION DE DRS
 
 %Prend 2 formules et les met dans un implique
 impl(F1,F2,imp(F1,F2)).
 
-%trad_cond([],_).
-trad_cond([X],Y) :- handle(X,Y), !.
-trad_cond([X|Xs], and(Y,R)) :- handle(X,Y), trad_cond(Xs,R).
+% Vérifie si une condition est une DRS
+is_drs(drs(_,_)).
 
 % Si la condition commence par imp et que les deux trucs sont des drs on les
 % traduit en formules logiques et on applique l'implication
@@ -53,37 +33,12 @@ handle(X,R) :- is_drs(X), !, drs_to_drt(X,R).
 %Si la condition est un prédicat basique je ne touche à rien
 handle(X,X) :- \+ is_drs(X).
 
-% Vérifie si une condition est une DRS
-is_drs(drs(_,_)).
+%trad_cond([],_).
+trad_cond([X],Y) :- handle(X,Y), !.
+trad_cond([X|Xs], and(Y,R)) :- handle(X,Y), trad_cond(Xs,R).
 
 % Transformation d'une DRS en formule logique
 drs_to_drt(DRS,R) :- listeRef(DRS,Re), listeCond(DRS,C), list_to_vars(Re,L1), trad_cond(C,L2), list_and(L1,L2,R).
 
 
-trad(X) :- exemple(X,DRS), drs_to_drt(DRS,R), format('La traduction de la drs est : ~n ~p. ~n',[R]).
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+trad_drs(X,R) :- exemple(X,DRS), drs_to_drt(DRS,R), format('~p ~n~nLa traduction de la drs est : ~n ~p. ~n',[DRS,R]).

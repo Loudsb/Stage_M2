@@ -1,16 +1,3 @@
-% EXEMPLES
-
-%Exemple 1 facile
-exemple(1,drs([x,y],[man(x),enter(x),smiled(y),eq(y,x)])).
-
-%Exemple 2 implication
-%Si un fermier possède un âne, il le bât.
-%exist(x),exist(y),impl(and(fermier(x),and(âne(y),and(posseder(x,y),true))),
-exemple(2,drs([],[imp_drs(drs([x,y],[fermier(x),âne(y),possede(x,y)]),drs([u,v],[eq(u,x),eq(v,y),battre(u,v)]))])).
-
-%Exemple 3 négation
-exemple(3,drs([],[non(drs([x,y],[man(x),enter(x),smiled(y),eq(y,x)]))])).
-
 
 
 % TRADUCTION DES DRS EN LOGIQUE DRT
@@ -61,7 +48,9 @@ trad_drs(X,R) :- exemple(X,DRS), drs_to_drt(DRS,R), format('~p ~n~nLa traduction
 % TRADUCTION EN LOGIQUE DU PREMIER ORDRE
 
 trad_exist_fol(Exists,Cond,exist(Exists,Cond)).
+trad_forall_fol(Forall,Cond,forall(Forall,Cond)).
 
+%Récupère les variables existentielles
 get_exist_vars(exist(X), [X]) :- !.
 get_exist_vars(and(F1, F2), L) :-
     get_exist_vars(F1, L1),
@@ -69,16 +58,20 @@ get_exist_vars(and(F1, F2), L) :-
     append(L1, L2, L), !.
 get_exist_vars(_, []) :- !.
 
+%Récupère les conditions
 get_cond(and(and(exist(_),_),C),[C]).
+get_cond(and(exist(_),C),[C]) :- C \= exist(_).
 get_cond(and(true,X),R) :- get_cond(X,R).
 get_cond(not(X),R) :- get_cond(X,R).
 
 
 drt_to_fol(not(X),not(R)) :- drt_to_fol(X,R), neg(R), !.
 drt_to_fol(imp(X,Y),R) :- 
-    drt_to_fol(X,R1),
+    get_exist_vars(X,E),
+    get_cond(X,C),
     drt_to_fol(Y,R2),
-    impl(R1,R2,R), !.
+    impl(C,R2,R3),
+    trad_forall_fol(E,[R3],R), !.
 drt_to_fol(and(true,X),R) :- drt_to_fol(X,R), !.
 drt_to_fol(F,R) :-
     get_exist_vars(F, L1),
