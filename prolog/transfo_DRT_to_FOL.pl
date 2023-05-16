@@ -1,3 +1,19 @@
+% EXEMPLES
+
+%Exemple 1 facile
+exemple(1,drs([x,y],[man(x),enter(x),smiled(y),eq(y,x)])).
+
+%Exemple 2 implication
+%Si un fermier possède un âne, il le bât.
+%exist(x),exist(y),impl(and(fermier(x),and(âne(y),and(posseder(x,y),true))),
+exemple(2,drs([],[imp_drs(drs([x,y],[fermier(x),âne(y),possede(x,y)]),drs([u,v],[eq(u,x),eq(v,y),battre(u,v)]))])).
+
+%Exemple 3 négation
+exemple(3,drs([],[non(drs([x,y],[man(x),enter(x),smiled(y),eq(y,x)]))])).
+
+%Exemple 4 négation
+%Pierre ne connait aucune fille
+exemple(4,drs([x],[pierre(x),non(drs([y],[fille(y),connait(x,y)]))])).
 
 
 % TRADUCTION DES DRS EN LOGIQUE DRT
@@ -65,7 +81,7 @@ get_cond(and(true,X),R) :- get_cond(X,R).
 get_cond(not(X),R) :- get_cond(X,R).
 
 
-drt_to_fol(not(X),not(R)) :- drt_to_fol(X,R), neg(R), !.
+drt_to_fol(not(X),not(R)) :- drt_to_fol(X,R), !.
 drt_to_fol(imp(X,Y),R) :- 
     get_exist_vars(X,E),
     get_cond(X,C),
@@ -77,6 +93,8 @@ drt_to_fol(F,R) :-
     get_exist_vars(F, L1),
     get_cond(F,L2),
     trad_exist_fol(L1,L2,R), !.
+
+%Si j'ai la négation j'applique le prédicat sinon je laisse le truc comme il est
 
 negation(not(exist(X,[Y])),forall(X,[R2])) :- 
     negation(Y,R2), !.
@@ -90,6 +108,7 @@ negation(or(X,Y),and(R1,R2)) :-
     negation(Y,R2), !.
 negation(X,not(X)) :- !.
 
-neg(X) :- negation(not(X),R), format('~nAprès application de la négation : ~n ~p. ~n',[R]).
+neg(not(X),R) :- negation(not(X),R), format('~nAprès application de la négation : ~n ~p. ~n',[R]), !.
+neg(X,X) :- !.
 
-trad_fol(X,R) :- trad_drs(X,R1), drt_to_fol(R1,R), format('~nLa traduction en fol est : ~n ~p. ~n',[R]).
+trad_fol(X,R) :- trad_drs(X,R1), drt_to_fol(R1,R2), format('~nLa traduction en fol est : ~n ~p. ~n',[R2]), neg(R2,R).
