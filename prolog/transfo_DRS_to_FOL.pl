@@ -13,7 +13,7 @@ drs_to_fol(imp_drs(X,Y),R) :- %cas où la condition est un implication de DRS
 
 drs_to_fol(non(X),R) :- %cas où la condition est une négation de DRS
     drs_to_fol(X,R1), %je traduit la drs normalement
-    neg(not(R1),R), !. %je gère la négation
+    neg_v2(not(R1),R), !. %je gère la négation
 
 drs_to_fol([X],R) :- %cas où la DRS ne contient qu'une seule condition
     drs_to_fol(X,R).
@@ -32,5 +32,14 @@ impl_drs_to_fol(drs(X,Y),DRS2,R) :- %cas où on a une DRS en tête d'implication
     impl(R1,R2,R3), %on fait implique entre les conditions de la première et la deuxième DRS
     trad_forall_fol(X,[R3],R), !. %On met ses marqueurs référents dans un forall
 
+neg_v2(not(X),R) :-
+    negation(not(X),R), !.
+neg_v2(X,X) :- !.
 
-trad_fol_v2(X,R) :- exemple(X,DRS), drs_to_fol(DRS,R), format('~p ~n~nLa traduction en fol est : ~n ~p. ~n',[DRS,R]).
+trad_fol_v2(X,R2) :- 
+    exemple(X,DRS),
+    drs_to_drt(DRS,R1),
+    drs_to_fol(DRS,R2),
+    format('~p ~n',[DRS]), %j'affiche la DRS qu'on traduit
+    format('~nLa traduction en logique drt est : ~n ~p. ~n',[R1]),
+    format('~nLa traduction en fol est : ~n ~p. ~n',[R2]).
