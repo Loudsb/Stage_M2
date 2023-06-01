@@ -2,8 +2,14 @@
 
 %prédicat qui affiche les anaphores avec leurs antécédents possibles
 afficher_ante(Ante,ReferentsPossibles) :-
-    format('Les antécédents possibles pour le mot ~p sont : ~p~n',[Ante,ReferentsPossibles]).
+    format('Les antécédents possibles pour la variable ~p sont : ~p~n',[Ante,ReferentsPossibles]).
 
+%prédicat qui enlève les variables identiques à celles dont on cherche l'antécédent
+enlever_var(_, [], []) :- !.
+enlever_var(Var, [Var|T], R) :- enlever_var(Var, T, R), !.
+enlever_var(Var, [H|T], [H|R]) :- enlever_var(Var, T, R).
+    
+    
 %prédicat qui récupère les référents et les mets dans une liste
 recuperer_referents([], List, List).
 recuperer_referents([Head|Tail], List1, Result) :-
@@ -32,8 +38,9 @@ rechercher_anaphore([X|Reste],Ref) :- %si on est dans une liste de conditions on
     rechercher_anaphore(X,Ref),
     rechercher_anaphore(Reste,Ref), !.
     
-rechercher_anaphore(eq(_,A),Ref) :-
-    afficher_ante(A,Ref), !.
+rechercher_anaphore(eq(X,_),Ref) :-
+    enlever_var(X,Ref,ListeRef),
+    afficher_ante(X,ListeRef), !.
 
 rechercher_anaphore(imp_drs(DRS1,DRS2),Ref) :-
     rechercher_anaphore_imp(DRS1,DRS2,Ref).
