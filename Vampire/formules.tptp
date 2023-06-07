@@ -1,0 +1,1 @@
+fof(f1,axiom,?[x]:(lea(x) & ![y]:(livre(y) & relit(x,y) => ?[u,v]:(impressionne(u,v) & u = ante1 & v = ante2))))
