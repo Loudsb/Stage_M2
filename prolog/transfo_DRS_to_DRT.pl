@@ -22,7 +22,7 @@ impl(F1,F2,imp(F1,F2)).
 % Vérifie si une condition est une DRS
 is_drs(drs(_,_)).
 
-% Si la condition commence par imp et que les deux trucs sont des drs on les
+% Si la condition commence par imp et que ses deux paramètres sont des drs on les
 % traduit en formules logiques et on applique l'implication
 handle(imp_drs(X,Y), R) :- is_drs(X), is_drs(Y), !, drs_to_drt(X,R1), drs_to_drt(Y,R2), impl(R1,R2,R).
 % Si la condition commence par non et qu'il s'agit d'une drs, on traduit
