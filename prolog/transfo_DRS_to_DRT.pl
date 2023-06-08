@@ -1,5 +1,3 @@
-
-
 % TRADUCTION DES DRS EN LOGIQUE DRT
 
 %Je crée une liste qui contient tous les référents de la DRS

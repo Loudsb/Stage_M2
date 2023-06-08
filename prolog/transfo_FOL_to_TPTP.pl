@@ -1,13 +1,13 @@
 % TRADUCTION AU FORMAT TPTP
 
-%prédicat qui prend une liste de variables et qui les mets en lettres majuscules
+%prédicat qui prend une liste de variables et les mets en lettres majuscules
 convert_to_uppercase([], []).
 convert_to_uppercase([T|Q],[S|R]) :-
     upcase_atom(T,S),
     convert_to_uppercase(Q,R).
 
 %vérifie que le paramètre donné est bien un prédicat
-est_predicat(Term) :- compound(Term), functor(Term, _, Arity), Arity > 0.
+is_predicat(Term) :- compound(Term), functor(Term, _, Arity), Arity > 0.
 
 
 fol_to_tptp(forall(X,[Y]),R) :-
@@ -39,22 +39,22 @@ fol_to_tptp(not(F),R) :-
     format(atom(R), '~c(~w)', [126,R1]), !.
 fol_to_tptp(F,R) :-
     atom(F), %si c'est un atom
-    upcase_atom(F,U),
+    upcase_atom(F,U), %on le met en majuscule
     format(atom(R), '~w', [U]), !.
 fol_to_tptp(F,R) :-
-    est_predicat(F), % si c'est un prédicat
+    is_predicat(F), % si c'est un prédicat
     functor(F, Foncteur, Arity),
     functor(R, Foncteur, Arity),
     fol_to_tptp_params(F, R, Arity),
     !.
 
-% Règle pour transformer les paramètres en majuscules
-fol_to_tptp_params(_, _, 0). %tous les paramètres ont été traités
+% Règle pour transformer les arguments en majuscules
+fol_to_tptp_params(_, _, 0). %tous les arguments ont été traités
 fol_to_tptp_params(F, R, N) :-
-    N > 0, %il reste des paramètres à traiter
-    arg(N, F, Parametre), %prend le N-ème paramètre du prédicat et l'assigne à la variable Parametre
-    arg(N, R, ParametreMajuscule), %prend le N-ème paramètre du résultat et l'assigne à la variable ParametreMajuscule
-    upcase_atom(Parametre, ParametreMajuscule),
+    N > 0, %il reste des arguments à traiter
+    arg(N, F, Parametre), %prend le N-ème argument du prédicat
+    arg(N, R, ParametreMajuscule), %prend le N-ème argument du résultat
+    upcase_atom(Parametre, ParametreMajuscule), %met l'argument en majuscule 
     N1 is N - 1,
     fol_to_tptp_params(F, R, N1).
 

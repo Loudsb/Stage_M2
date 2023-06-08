@@ -43,4 +43,3 @@ trad_fol_v2(X,R2) :-
     format('~p ~n',[DRS]), %j'affiche la DRS qu'on traduit
     format('~nLa traduction en logique drt est : ~n ~p. ~n',[R1]),
     format('~nLa traduction en fol est : ~n ~p. ~n',[R2]).
- 
